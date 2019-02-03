@@ -18,7 +18,7 @@ func main() {
 	var port = flag.Int("port", 1234, "port of the udp socket on server")
 	var ip = flag.String("ip", "127.0.0.1", "ip of the server")
 	var name = flag.String("name", "Serial", "the name of the serial port")
-	var baud = flag.Int("baud", 8000, "the name of the serial port")
+	var baud = flag.Int("baud", 8000, "the baud rate of the serial port")
 
 	flag.Parse()
 
@@ -36,7 +36,7 @@ func main() {
 	connectionString := fmt.Sprintf("%s:%d", *ip, *port)
 	conn, err := net.Dial("udp", connectionString)
 	if err != nil {
-		fmt.Printf("error: %v", err)
+		log.Printf("error: %v", err)
 		return
 	}
 	defer conn.Close()
