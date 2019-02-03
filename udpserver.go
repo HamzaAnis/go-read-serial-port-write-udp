@@ -8,7 +8,7 @@ import (
 )
 
 func writeStdOut(msg []byte, addr *net.UDPAddr) {
-	fmt.Printf("Received a message from %v\n%s\n", addr, string(msg))
+	log.Printf("Received from %v: Message = %s\n\n", addr, string(msg))
 }
 
 func main() {
@@ -21,6 +21,7 @@ func main() {
 		Port: *port,
 		IP:   net.ParseIP(*ip),
 	}
+
 	ser, err := net.ListenUDP("udp", &addr)
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
