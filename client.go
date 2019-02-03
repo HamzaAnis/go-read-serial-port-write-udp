@@ -9,6 +9,11 @@ import (
 	"github.com/tarm/serial"
 )
 
+func sendJson(buffer []byte, conn *net.Conn) {
+	// log.Printf("Received from %v: Message = %s\n\n", addr, msg)
+	fmt.Fprintf(*conn, string(buffer))
+	log.Printf("from port: %v\n", string(buffer))
+}
 func main() {
 	var port = flag.Int("port", 1234, "port of the udp socket on server")
 	var ip = flag.String("ip", "127.0.0.1", "ip of the server")
@@ -17,6 +22,7 @@ func main() {
 
 	flag.Parse()
 
+	// opening serial port
 	c := &serial.Config{
 		Name: *name,
 		Baud: *baud,
@@ -25,19 +31,22 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	buffer := make([]byte, 2048)
-	n, err := s.Read(buffer)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("%v", string(buffer[:n]))
 
+	// opening udp socket
 	connectionString := fmt.Sprintf("%s:%d", *ip, *port)
 	conn, err := net.Dial("udp", connectionString)
 	if err != nil {
 		fmt.Printf("error: %v", err)
 		return
 	}
-	fmt.Fprintf(conn, string(buffer[:n]))
-	conn.Close()
+	defer conn.Close()
+
+	buffer := make([]byte, 2048)
+	for {
+		n, err := s.Read(buffer)
+		if err != nil {
+			log.Fatal(err)
+		}
+		go sendJson(buffer[:n], &conn)
+	}
 }
