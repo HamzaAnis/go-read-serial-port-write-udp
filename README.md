@@ -16,21 +16,14 @@
 Before building the source code please run this command
 
  ```
- go get github.com/tarm/serial
+ $ go get github.com/tarm/serial
  ```
 
 
 
 
 ## Arguments
-To see the arguments you can type `go run filename.go`
-#### udpserver.go
-
-| Name | Description |
-| ---- | ----------- |
-| `ip` | `ip of the server`|
-| `port`|`port of the udp socket on server`|
-
+To see the arguments you can type `go run filename.go --help`
 ``` 
 $ go run udpserver.go --help
 
@@ -38,9 +31,14 @@ $ go run udpserver.go --help
         ip of the server (default "127.0.0.1")
   -port int
         port of the udp socket on server (default 1234)
-
-$ go run udpserver.go -port 8080 -ip 127.0.0.1
 ```
+
+#### udpserver.go
+
+| Name | Description |
+| ---- | ----------- |
+| `ip` | `ip of the server`|
+| `port`|`port of the udp socket on server`|
 
 
 #### client.go
@@ -52,12 +50,24 @@ $ go run udpserver.go -port 8080 -ip 127.0.0.1
 | `port`|`port of the udp socket on server`|
 | `ip`|`ip of the server`|
 
-``` 
+
+## Builiding and Running
+If you want to compile the source code into the platform executable then you can simply run these commands
+```
+$ go build udpserver.go
+$ go build client.go
+$ ./udpserver -port 8080 -ip 127.0.0.1
+$ ./client -ip 127.0.0.1 -port 8080 -name ETC -baud 1222
+```
+
+Or you can also run it like this
+
+```
+$ go run udpserver.go -port 8080 -ip 127.0.0.1
 $ go run client.go -ip 127.0.0.1 -port 8080 -name ETC -baud 1222
 ```
 
-
-*If you don't want to set the values in the argument then you can leave it to default by not giving it in the arguments flags*
+*If you don't want to set the values in the argument then you can leave it to default values by not giving it in the arguments flags*
 
 
 #### Description
