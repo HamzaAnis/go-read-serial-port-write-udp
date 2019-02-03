@@ -2,7 +2,7 @@
 
 
 
-### Files
+## Files
 ```
     udpserver.go     This createst the udp server and prints to stdout when receives a data
     client.go        This opens the serial port and forward data to the sudo socket 
@@ -11,10 +11,18 @@
 ```
 
 ### Requirements 
-- `go get github.com/tarm/serial`
+- Go
+
+Before building the source code please run this command
+
+ ```
+ go get github.com/tarm/serial
+ ```
 
 
-### Arguments
+
+
+## Arguments
 To see the arguments you can type `go run filename.go`
 #### udpserver.go
 
@@ -50,3 +58,7 @@ $ go run client.go -ip 127.0.0.1 -port 8080 -name ETC -baud 1222
 
 
 *If you don't want to set the values in the argument then you can leave it to default by not giving it in the arguments flags*
+
+
+#### Description
+The Udp Server and Client will run forever unless there is an error. The client will open a serial port and then it will open the udp socket and after reading from the serial port it will send the json data to the server and it will print the json to the console
