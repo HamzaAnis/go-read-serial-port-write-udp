@@ -33,8 +33,8 @@ Before building the source code please run this command
 
 #### client.go
 
-| Name | Description |
-| ---- | ----------- |
+| Number | Name | Description |
+| ------ | ---- | ----------- |
 | `1` | `ip`|`ip of the server`|
 | `2` | `port`|`port of the udp socket on server`|
 | `3` | `name`|`the name of the serial port`|
