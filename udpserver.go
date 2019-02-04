@@ -1,10 +1,11 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"net"
+	"os"
+	"strconv"
 )
 
 func writeStdOut(msg []byte, addr *net.UDPAddr) {
@@ -13,13 +14,26 @@ func writeStdOut(msg []byte, addr *net.UDPAddr) {
 
 func main() {
 	buffer := make([]byte, 2048)
-	var port = flag.Int("port", 1234, "the port on which the udp socket will open")
-	var ip = flag.String("ip", "127.0.0.1", "the host addrress for the udp socket")
 
-	flag.Parse()
+	var ip string
+	var port int
+
+	if len(os.Args) < 3 {
+		ip = "127.0.0.1"
+		port = 1234
+	} else {
+		ip = os.Args[1]
+		var err error
+		port, err = strconv.Atoi(os.Args[2])
+		if err != nil {
+			log.Println(err)
+			os.Exit(2)
+		}
+	}
+
 	addr := net.UDPAddr{
-		Port: *port,
-		IP:   net.ParseIP(*ip),
+		Port: port,
+		IP:   net.ParseIP(ip),
 	}
 
 	ser, err := net.ListenUDP("udp", &addr)
@@ -27,7 +41,7 @@ func main() {
 		fmt.Printf("error: %v\n", err)
 		return
 	}
-	log.Printf("Udp Socket running on Ip:{%s}, Port:{%v}\n", *ip, *port)
+	log.Printf("Udp Socket running on Ip:{%s}, Port:{%v}\n", ip, port)
 	for {
 		n, addr, err := ser.ReadFromUDP(buffer)
 		if err != nil {
