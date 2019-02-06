@@ -28,6 +28,11 @@ func openPort(c *serial.Config) *serial.Port {
 	if err != nil {
 		log.Fatal(err)
 	}
+	// sending inital command.
+	_, err = port.Write([]byte(`{"command":0,"action":"start"}`))
+	if err != nil {
+		log.Fatal(err)
+	}
 	return port
 }
 
