@@ -21,6 +21,7 @@ func main() {
 	if len(os.Args) < 3 {
 		ip = "127.0.0.1"
 		port = 1234
+		fmt.Println("Default values are set!")
 	} else {
 		ip = os.Args[1]
 		var err error

@@ -11,9 +11,17 @@ import (
 )
 
 func sendJson(buffer []byte, conn *net.Conn) {
-	// log.Printf("Received from %v: Message = %s\n\n", addr, msg)
 	fmt.Fprintf(*conn, string(buffer))
 	log.Printf("from port: %v\n", string(buffer))
+}
+
+func convertStringToInt(arg string) int {
+	number, err := strconv.Atoi(arg)
+	if err != nil {
+		log.Println(err)
+		os.Exit(2)
+	}
+	return number
 }
 func main() {
 	var ip string
@@ -21,11 +29,20 @@ func main() {
 	var name string
 	var baud int
 
-	if len(os.Args) < 5 {
+	names := make([]string, 5)
+	bauds := make([]int, 5)
+	if len(os.Args) < 11 {
 		ip = "127.0.0.1"
 		port = 1234
-		name = "name"
-		baud = 8000
+		names[0] = "name1"
+		bauds[0] = 8000
+		names[1] = "name2"
+		bauds[1] = 8000
+		names[2] = "name3"
+		bauds[2] = 8000
+		names[3] = "name4"
+		bauds[3] = 8000
+		fmt.Println("Default values are set!")
 	} else {
 		ip = os.Args[1]
 		var err error
@@ -34,12 +51,18 @@ func main() {
 			log.Println(err)
 			os.Exit(2)
 		}
-		name = os.Args[3]
-		baud, err = strconv.Atoi(os.Args[4])
-		if err != nil {
-			log.Println(err)
-			os.Exit(2)
-		}
+		names[0] = os.Args[3]
+		bauds[0] = convertStringToInt(os.Args[4])
+
+		names[1] = os.Args[5]
+		bauds[1] = convertStringToInt(os.Args[6])
+
+		names[2] = os.Args[7]
+		bauds[2] = convertStringToInt(os.Args[8])
+
+		names[3] = os.Args[9]
+		bauds[3] = convertStringToInt(os.Args[10])
+
 	}
 
 	// opening serial port
