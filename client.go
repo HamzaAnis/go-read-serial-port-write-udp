@@ -18,16 +18,22 @@ func sendJson(buffer []byte, conn *net.Conn) {
 func convertStringToInt(arg string) int {
 	number, err := strconv.Atoi(arg)
 	if err != nil {
-		log.Println(err)
-		os.Exit(2)
+		log.Fatal(err)
 	}
 	return number
 }
+
+func openPort(c *serial.Config) *serial.Port {
+	port, err := serial.OpenPort(c)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return port
+}
+
 func main() {
 	var ip string
 	var port int
-	var name string
-	var baud int
 
 	names := make([]string, 5)
 	bauds := make([]int, 5)
@@ -36,12 +42,16 @@ func main() {
 		port = 1234
 		names[0] = "name1"
 		bauds[0] = 8000
+
 		names[1] = "name2"
 		bauds[1] = 8000
+
 		names[2] = "name3"
 		bauds[2] = 8000
+
 		names[3] = "name4"
 		bauds[3] = 8000
+
 		fmt.Println("Default values are set!")
 	} else {
 		ip = os.Args[1]
@@ -66,14 +76,30 @@ func main() {
 	}
 
 	// opening serial port
-	c := &serial.Config{
-		Name: name,
-		Baud: baud,
+	c1 := &serial.Config{
+		Name: names[0],
+		Baud: bauds[0],
 	}
-	s, err := serial.OpenPort(c)
-	if err != nil {
-		log.Fatal(err)
+
+	c2 := &serial.Config{
+		Name: names[1],
+		Baud: bauds[1],
 	}
+
+	c3 := &serial.Config{
+		Name: names[2],
+		Baud: bauds[2],
+	}
+
+	c4 := &serial.Config{
+		Name: names[3],
+		Baud: bauds[3],
+	}
+
+	s1 := openPort(c1)
+	s2 := openPort(c2)
+	s3 := openPort(c3)
+	s4 := openPort(c4)
 
 	// opening udp socket
 	connectionString := fmt.Sprintf("%s:%d", ip, port)
@@ -86,7 +112,7 @@ func main() {
 
 	buffer := make([]byte, 2048)
 	for {
-		n, err := s.Read(buffer)
+		n, err := s1.Read(buffer)
 		if err != nil {
 			log.Fatal(err)
 		}
