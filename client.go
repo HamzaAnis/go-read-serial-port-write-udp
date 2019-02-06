@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net"
@@ -10,15 +11,25 @@ import (
 	"github.com/tarm/serial"
 )
 
+// Client stores the data regarding a serial port
+type Client struct {
+	c      chan []byte
+	port   *serial.Port
+	config *serial.Config
+}
+
 func main() {
 	var ip string
 	var port int
 
 	names := make([]string, 5)
 	bauds := make([]int, 5)
+
+	// Checking arguments and if not valid then changing to default
 	if len(os.Args) < 11 {
 		ip = "127.0.0.1"
 		port = 1234
+
 		names[0] = "name1"
 		bauds[0] = 8000
 
@@ -75,10 +86,30 @@ func main() {
 		Baud: bauds[3],
 	}
 
-	s1 := openPort(c1)
-	s2 := openPort(c2)
-	s3 := openPort(c3)
-	s4 := openPort(c4)
+	channel := make(chan []byte)
+
+	var s1 = &Client{
+		c:      channel,
+		config: c1,
+		port:   openPort(c1),
+	}
+
+	var s2 = &Client{
+		c:      channel,
+		config: c2,
+		port:   openPort(c2),
+	}
+
+	var s3 = &Client{
+		c:      channel,
+		config: c3,
+		port:   openPort(c3),
+	}
+	var s4 = &Client{
+		c:      channel,
+		config: c4,
+		port:   openPort(c4),
+	}
 
 	// opening udp socket
 	connectionString := fmt.Sprintf("%s:%d", ip, port)
@@ -88,35 +119,45 @@ func main() {
 	}
 	defer conn.Close()
 
-	c := make(chan []byte)
-
 	// starting thread for sending packets to upd server
-	go forwardPackets(&conn, c)
+	go forwardPackets(&conn, channel)
 
-	go readFromPort(s1, c)
-	go readFromPort(s2, c)
-	go readFromPort(s3, c)
-	go readFromPort(s4, c)
+	go s1.readFromPort()
+	go s2.readFromPort()
+	go s3.readFromPort()
+	go s4.readFromPort()
 }
 
-func forwardPackets(conn *net.Conn, c chan []byte) {
+func (s *Client) readFromPort() {
+	packet := make([]byte, 4096)
 	for {
-		message := <-c
-		go sendJSON(message, conn)
-	}
-}
-func readFromPort(port *serial.Port, c chan []byte) {
-	buffer := make([]byte, 4096)
-	for {
-		n, err := port.Read(buffer)
+		n, err := s.port.Read(packet)
 		if err != nil {
 			log.Fatal(err)
 		}
 		// sending to forward packets
-		c <- buffer[:n]
+		go addPortNameToPacketAndSend(packet[:n], s.config.Name, s.c)
 	}
 }
 
+func addPortNameToPacketAndSend(packet []byte, name string, channel chan []byte) {
+	var m map[string]interface{}
+	err := json.Unmarshal(packet, &m)
+	if err != nil {
+		log.Println(err)
+		channel <- packet
+		return
+	}
+	// adding name of port in the json
+	m["port_name"] = name
+	newData, err := json.Marshal(m)
+	if err != nil {
+		log.Println(err)
+		channel <- packet
+		return
+	}
+	channel <- newData
+}
 func openPort(c *serial.Config) *serial.Port {
 	port, err := serial.OpenPort(c)
 	if err != nil {
@@ -138,6 +179,16 @@ func convertStringToInt(arg string) int {
 	return number
 }
 
+// After adding the name of the port in the packet, it is send to this func
+func forwardPackets(conn *net.Conn, c chan []byte) {
+	for {
+		message := <-c
+		// creating thread for sending to udp
+		go sendJSON(message, conn)
+	}
+}
+
+//this writes to udp server
 func sendJSON(buffer []byte, conn *net.Conn) {
 	fmt.Fprintf(*conn, string(buffer))
 }
