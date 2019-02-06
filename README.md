@@ -37,8 +37,14 @@ Before building the source code please run this command
 | ------ | ---- | ----------- |
 | `1` | `ip`|`ip of the server`|
 | `2` | `port`|`port of the udp socket on server`|
-| `3` | `name`|`the name of the serial port`|
-| `4` | `baud` | `the baud rate of the serial port `|
+| `3` | `name 1`|`the name of the serial port 1`|
+| `4` | `baud 1` | `the baud rate of the serial port 1`|
+| `5` | `name 2`|`the name of the serial port 2`|
+| `6` | `baud 2` | `the baud rate of the serial port 2`|
+| `7` | `name 3`|`the name of the serial port 3`|
+| `8` | `baud 3` | `the baud rate of the serial port 3`|
+| `9` | `name 4`|`the name of the serial port 4`|
+| `10` | `baud 4` | `the baud rate of the serial port 4`|
 
 
 ## Builiding and Running
@@ -47,14 +53,14 @@ If you want to compile the source code into the platform executable then you can
 $ go build udpserver.go
 $ go build client.go
 $ ./udpserver 127.0.0.1 8080 
-$ ./client 127.0.0.1 8080 ETC 1222
+$ ./client 127.0.0.1 8080 ETC1 1222 ETC2 1222 ETC3 1222 ETC4 1222
 ```
 
 Or you can also run it like this
 
 ```
 $ go run udpserver.go 127.0.0.1 8080
-$ go run client.go 127.0.0.1 8080 ETC 1222
+$ go run client.go 127.0.0.1 8080 ETC1 1222 ETC2 1222 ETC3 1222 ETC4 1222
 ```
 
 *If you don't want to set the values in the argument then you can leave it to default values by not giving it in the arguments*
