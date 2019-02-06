@@ -10,32 +10,6 @@ import (
 	"github.com/tarm/serial"
 )
 
-func sendJson(buffer []byte, conn *net.Conn) {
-	fmt.Fprintf(*conn, string(buffer))
-	log.Printf("from port: %v\n", string(buffer))
-}
-
-func convertStringToInt(arg string) int {
-	number, err := strconv.Atoi(arg)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return number
-}
-
-func openPort(c *serial.Config) *serial.Port {
-	port, err := serial.OpenPort(c)
-	if err != nil {
-		log.Fatal(err)
-	}
-	// sending inital command.
-	_, err = port.Write([]byte(`{"command":0,"action":"start"}`))
-	if err != nil {
-		log.Fatal(err)
-	}
-	return port
-}
-
 func main() {
 	var ip string
 	var port int
@@ -110,17 +84,60 @@ func main() {
 	connectionString := fmt.Sprintf("%s:%d", ip, port)
 	conn, err := net.Dial("udp", connectionString)
 	if err != nil {
-		log.Printf("error: %v", err)
-		return
+		log.Fatalf("error: %v", err)
 	}
 	defer conn.Close()
 
-	buffer := make([]byte, 2048)
+	c := make(chan []byte)
+
+	// starting thread for sending packets to upd server
+	go forwardPackets(&conn, c)
+
+	go readFromPort(s1, c)
+	go readFromPort(s2, c)
+	go readFromPort(s3, c)
+	go readFromPort(s4, c)
+}
+
+func forwardPackets(conn *net.Conn, c chan []byte) {
 	for {
-		n, err := s1.Read(buffer)
+		message := <-c
+		go sendJSON(message, conn)
+	}
+}
+func readFromPort(port *serial.Port, c chan []byte) {
+	buffer := make([]byte, 4096)
+	for {
+		n, err := port.Read(buffer)
 		if err != nil {
 			log.Fatal(err)
 		}
-		go sendJson(buffer[:n], &conn)
+		// sending to forward packets
+		c <- buffer[:n]
 	}
+}
+
+func openPort(c *serial.Config) *serial.Port {
+	port, err := serial.OpenPort(c)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// sending inital command.
+	_, err = port.Write([]byte(`{"command":0,"action":"start"}`))
+	if err != nil {
+		log.Fatal(err)
+	}
+	return port
+}
+
+func convertStringToInt(arg string) int {
+	number, err := strconv.Atoi(arg)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return number
+}
+
+func sendJSON(buffer []byte, conn *net.Conn) {
+	fmt.Fprintf(*conn, string(buffer))
 }
