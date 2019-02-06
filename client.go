@@ -86,6 +86,7 @@ func main() {
 		Baud: bauds[3],
 	}
 
+	// a chan where the threads will exchange packets
 	channel := make(chan []byte)
 
 	var s1 = &Client{
@@ -158,6 +159,8 @@ func addPortNameToPacketAndSend(packet []byte, name string, channel chan []byte)
 	}
 	channel <- newData
 }
+
+// this opens the serial port
 func openPort(c *serial.Config) *serial.Port {
 	port, err := serial.OpenPort(c)
 	if err != nil {
