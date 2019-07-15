@@ -67,4 +67,4 @@ $ go run client.go 127.0.0.1 8080 ETC1 1222 ETC2 1222 ETC3 1222 ETC4 1222
 
 
 #### Description
-The Udp Server and Client will run forever unless there is an error. The client will open a serial port and then it will open the udp socket and after reading from the serial port it will send the json data to the server and it will print the json to the console
+The Udp Server and Client will run continously unless there is an error. The client will open a serial port and then it will open the udp socket and after reading from the serial port it will send the json data to the server and it will print the json to the console
